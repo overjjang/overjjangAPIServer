@@ -1,0 +1,7 @@
+/.env
+/node_modules/
+/.idea/
+/webServerStart.bat
+/work.url
+/servers.json
+/key
