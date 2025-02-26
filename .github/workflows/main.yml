@@ -28,7 +28,7 @@ jobs:
             cd ./overjjangAPIServer/
             git pull origin main
             npm install
-            pm2 restart APIServer
+            pm2 restart apiServer
 
       - name: Skip deployment in fork
         env:
