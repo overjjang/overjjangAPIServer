@@ -59,6 +59,40 @@ router.get('/getWorkStatus', async (req, res) => {
     res.json({cronTasks, serverNames, latestRecord });
 });
 
+router.get('/getHostStatus', async (req, res) => {
+    await fetch("https://status.overjjang.xyz/api/data")
+        .then(res => res.json())
+        .then(json => {
+            console.log(json);
+            // hostInfo.json 의 정보 가져오기
+            const hostInfo = JSON.parse(fs.readFileSync('./hostInfo.json', 'utf-8'));
+            console.log(hostInfo.hosts);
+            let hostStatus = {up: json.up, down: json.down, total: json.up + json.down, hosts: []};
+            // hostStatus.push({up: json.up, down: json.down, total: json.up + json.down, hosts: []});
+            for (let host of hostInfo.hosts) {
+                const monitor = json.monitors[host.id];
+                if (monitor) {
+                    hostStatus.hosts.push({
+                        id: host.id,
+                        name: host.name,
+                        description: host.description,
+                        state: host.state,
+                        up: monitor.up,
+                        latency: monitor.latency,
+                        location: monitor.location,
+                        message: monitor.message
+                    });
+                }
+            }
+            res.json(hostStatus);
+
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        });
+});
+
 //------------------------post------------------------
 router.post('/updateServerState', (req, res) => {
     recordServerStatus()
