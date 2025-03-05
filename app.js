@@ -4,6 +4,7 @@ const path = require("path");
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const helmet = require('helmet');
+const cors = require('cors');
 
 
 const app = express();
@@ -26,6 +27,16 @@ app.use(helmet.contentSecurityPolicy(
         }
     })
 );
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
+// CSP 설정을 수정하여 localhost:3001을 허용합니다.
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", "http://localhost:3001"]
+    }
+}));
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/api', require('./router/index'));
