@@ -8,6 +8,8 @@ var router = express.Router();
 
 const statusRouter = require('../models/chart.model');
 const {createRecord,recordServerStatus} = require('../recordState');
+const { sendHospitalData } = require('../hospitalSend');
+const {query} = require("express");
 
 let cronTime = {
     main: null,
@@ -39,7 +41,6 @@ router.get('/chart',(req ,res)=>{
 });
 //작업내용 확인
 router.get('/status', (req, res) => {
-
     res.render('../views/status');
 });
 
@@ -92,6 +93,22 @@ router.get('/getHostStatus', async (req, res) => {
             res.status(500).send(err);
         });
 });
+
+router.get('/hospital', async (req, res) => {
+    const patientName = req.query.patientName || "김종민"; // 예시로 이름을 넣음
+    const latitude = parseFloat(req.query.latitude) || 36.4798954; // 예시로 위도
+    const longitude = parseFloat(req.query.longitude) || 127.2619433; // 예시로 경도
+    const emergency = req.query.emergency || 80; // 예시로 응급 상황
+
+    await sendHospitalData(patientName, latitude, longitude, emergency)
+        .then(result => {
+            res.json(result);
+        })
+        .catch(err => {
+            console.error("병원 데이터 조회 오류:", err);
+            res.status(500).send(err);
+        });
+})
 
 //------------------------post------------------------
 router.post('/updateServerState', (req, res) => {
